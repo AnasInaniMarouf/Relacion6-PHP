@@ -5,21 +5,14 @@ $barra=[
     [
         "TEXTO"=> "Inicio",
         "ENLACE" =>"/index.php"//, "ADICIONAL"=>">>"
-    ]/*,
-    [ 
-        "TEXTO"=> "otro"   
-    ],
-    [ 
-        "TEXTO"=> "Index"/*,
-        "ADICIONAL"=> "&copy;&copy;"
-    ]*/
+    ]
 ];
 
 //dibuja la plantilla de la vista
-inicioCabecera("Practica 1");
+inicioCabecera("Tienda");
 cabecera();
 finCabecera();
-inicioCuerpo("INICIO", $barra);
+inicioCuerpo("TIENDA", $barra);
 cuerpo(); //llamo a la vista
 finCuerpo();
 // **********************************************************
@@ -31,21 +24,6 @@ function cuerpo()
 {
 ?>
     <ul class="menuOpciones">
-        <li>
-            <a href="./aplicacion/relacion1/index.php">Relacion 1</a>
-        </li>
-        <li>
-            <a href="./aplicacion/relacion2/index.php">Relacion 2</a>
-        </li>
-        <li>
-            <a href="./aplicacion/relacion3/index.php">Relacion 3</a>
-        </li>
-        <li>
-            <a href="./aplicacion/relacion4/index.php">Relacion 4</a>
-        </li>
-        <li>
-            <a href="./aplicacion/relacion5/index.php">Relacion 5</a>
-        </li>
     </ul>
 <?php
 }

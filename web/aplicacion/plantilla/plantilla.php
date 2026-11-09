@@ -62,12 +62,7 @@ function inicioCuerpo(string $cabecera, array $ubicacion = [])
             </div>
             <div id="barraMenu">
                 <ul>
-                    <li><a href="/aplicacion/pruebas/index.php">Pruebas</a></li>
-                    <li><a href="/aplicacion/relacion1/index.php">Relacion 1</a></li>
-                    <li><a href="/aplicacion/relacion2/index.php">Relacion 2</a></li>
-                    <li><a href="/aplicacion/relacion3/index.php">Relacion 3</a></li>
-                    <li><a href="/aplicacion/relacion4/index.php">Relacion 4</a></li>
-                    <li><a href="/aplicacion/relacion5/index.php">Relacion 5</a></li>
+                    <li><a href="/aplicacion/pruebas/index.php">A rellenar</a></li>
                 </ul>
             </div>
             <div id="barraUbicacion">
