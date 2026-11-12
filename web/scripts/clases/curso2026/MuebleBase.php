@@ -35,12 +35,32 @@ abstract class MuebleBase {
 
         //cadena, fecha en la que se empieza a vender el mueble, no puede ser anterior al uno
         //de enero del Anio de inicio de fabricación, en caso de fallo se asigna “01/01/anio
-        if(mb_strlen($nombre) <= 40 && $nombre != "") $this->_fechaIniVenta = $fechaIniVenta;
+        if($fechaIniVenta != "" && $fechaIniVenta >= ("01/01/" . $this -> _anio)) {
+            $this->_fechaIniVenta = $fechaIniVenta;
 
-        //
+        } else $this -> _fechaIniVenta = "01/01/" . $this -> _anio;
+
+        //cadena-fecha, fecha en la que dejará de venderse, no puede ser anterior a la FechaIniVenta, por defecto 31/12/2040’
         if(mb_strlen($nombre) <= 40 && $nombre != "") $this->_fechaFinVenta = $fechaFinVenta;
 
-        //
-        if(mb_strlen($nombre) <= 40 && $nombre != "") $this->_precio = $precio;
+        //real, por defecto 30, no puede ser menor de 30
+        if($precio >= 30) $this->_precio = $precio;
+    }
+
+    //Deshabilitar la sobrecarga dinámica en la clase
+    public function __get(string $nombre): mixed {
+        throw new Exception("No existe la propiedad " . $nombre);
+    }
+
+    public function __set(string $nombre, mixed $valor): void {
+        throw new Exception("No existe la propiedad " . $nombre);
+    }
+
+    public function __isset(string $nombre): bool {
+        throw new Exception("No existe la propiedad " . $nombre);
+    }
+
+    public function __unset(string $nombre): void {
+        throw new Exception("No existe la propiedad " . $nombre);
     }
 }
