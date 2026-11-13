@@ -1,7 +1,10 @@
 <?php
+/**
+ * Clase abstracta MuebleBase
+ */
 abstract class MuebleBase {
-    const MAXIMOMUEBLES = 2;
-    private static int $_mueblesCreados;
+    const MAXIMO_MUEBLES = 10;
+    private static int $_mueblesCreados = 0;
 
     private string $_nombre;
     private string $_fabricante = "FaMu:";
@@ -17,35 +20,174 @@ abstract class MuebleBase {
                                 string|DateTime $fechaFinVenta = "31/12/2040",
                                 float $precio = 30) {
 
-        //cadena de máximo 40, no puede estar vacía, a mayúscula, obligatorio
-        if(mb_strlen($nombre) <= 40 && $nombre != "") $this->_nombre = strtoupper($nombre);
-        
-        //cadena de máximo 30, por defecto ‘FaMu:’, siempre se añade al principio FaMu:
-        //si no lo tiene ya - se recorta a 30 caracteres-
-        if(mb_strlen($fabricante) <= 30) {
-            if(substr($fabricante, 0, 4) === "FaMu:") $this->_fabricante = $fabricante;
-            else $this->_fabricante = "FaMu:" . $fabricante;
+        if (self::$_mueblesCreados >= self::MAXIMO_MUEBLES) {
+            throw new Exception("Máximo de muebles alcanzado");
         }
 
-        //cadena, máximo 20 caracteres, por defecto ‘ESPAÑA’
-        if(mb_strlen($pais) <= 20) $this->_pais = $pais;
+        if (!$this->setNombre($nombre)) {
+            throw new Exception("Nombre no válido");
+        }
 
-        //entero, año de inicio de fabricación, valor entre 2020 y el año actual, por defecto 2020
-        if(mb_strlen($anio) >= 2020 && $anio < intval(date("Y"))) $this->_anio = $anio;
+        $this->setFabricante($fabricante);
+        $this->setPais($pais);
+        $this->setAnio($anio);
+        $this->setFechaIniVenta($fechaIniVenta);
+        $this->setFechaFinVenta($fechaFinVenta);
+        $this->setPrecio($precio);
 
-        //cadena, fecha en la que se empieza a vender el mueble, no puede ser anterior al uno
-        //de enero del Anio de inicio de fabricación, en caso de fallo se asigna “01/01/anio
-        if($fechaIniVenta != "" && $fechaIniVenta >= ("01/01/" . $this -> _anio)) {
-            $this->_fechaIniVenta = $fechaIniVenta;
-
-        } else $this -> _fechaIniVenta = "01/01/" . $this -> _anio;
-
-        //cadena-fecha, fecha en la que dejará de venderse, no puede ser anterior a la FechaIniVenta, por defecto 31/12/2040’
-        if(mb_strlen($nombre) <= 40 && $nombre != "") $this->_fechaFinVenta = $fechaFinVenta;
-
-        //real, por defecto 30, no puede ser menor de 30
-        if($precio >= 30) $this->_precio = $precio;
+        self::$_mueblesCreados++;
     }
+
+    /**
+     * Funcion que devuelve un array con el nombre de las propiedades
+     * adicionales a la clase base
+     *
+     * @return array
+     */
+    abstract public function damePropiedadesAdicionales(): array;
+
+
+    /**
+     * Funcion que valida si puede crear un mueble o no
+     * en funcion del numero maximo de muebles
+     *
+     * @param integer $numero cantidad de muebles que se pueden crear, si es 0 o menos devuelve false
+     * @return boolean true si se puede y false si no
+     */
+    public static function puedeCrear(int &$numero): bool {
+        $numero = self::MAXIMO_MUEBLES - self::$_mueblesCreados;
+
+        return ($numero > 0);
+    }
+
+
+    /**
+     * Funcion que devuelve una cadena con las propiedades de un mueble
+     *
+     * @return string
+     */
+    public function __toString(): string {
+
+        return "MUEBLE de clase " . get_class($this) . " con nombre " . $this->_nombre .
+            ", fabricante " . $this->_fabricante . ", fabricado en " . $this->_pais .
+            " a partir del año " . $this->_anio . ", vendido desde " . $this->_fechaIniVenta .
+            " hasta " . $this->_fechaFinVenta . ", precio " . $this->_precio;
+    }
+
+    /*Getters y setters */
+    //nombre
+    public function getNombre(): string {
+        return $this->_nombre;
+    }
+
+    public function setNombre(string $nombre): bool {
+        $nombre = trim($nombre);
+
+        if ($nombre == "" || mb_strlen($nombre) > 40) {
+            return false;
+        }
+
+        $this->_nombre = mb_strtoupper($nombre);
+        return true;
+    }
+
+    //fabricante
+    public function getFabricante(): string {
+        return $this->_fabricante;
+    }
+
+    public function setFabricante(string $fabricante): void {
+        $fabricante = trim($fabricante);
+
+        if ($fabricante != "") {
+            if (substr($fabricante, 0, 5) != "FaMu:") {
+                $fabricante = "FaMu:" . $fabricante;
+            }
+            $this->_fabricante = $fabricante;
+
+        } else {
+            $this->_fabricante = "FaMu:";
+        }
+    }
+
+    // PAIS
+    public function getPais(): string {
+        return $this->_pais;
+    }
+
+    public function setPais(string $pais): void {
+        $pais = trim($pais);
+        if($pais == "" && mb_strlen($pais) > 20) $this -> _pais = $pais;
+    }
+
+    // AÑO
+    public function getAnio(): int {
+        return $this->_anio;
+    }
+
+    public function setAnio(int $anio): void {
+        $this->_anio = ($anio >= 2020 && $anio <= intval(date("Y")))? $anio: 2020;
+    }
+
+    // FECHA INICIO DE VENTA
+    public function getFechaIniVenta(): string {
+        return $this->_fechaIniVenta;
+    }
+
+    public function setFechaIniVenta(string $fechaIniVenta): void {
+        $fecha = DateTime::createFromFormat('d/m/Y', $fechaIniVenta);
+
+        $esValida = $fecha && $fecha->format('d/m/Y') == $fechaIniVenta;
+
+        $fechaMinima = DateTime::createFromFormat('!d/m/Y','01/01/' . $this->_anio);
+
+        if ($esValida && $fecha >= $fechaMinima) {
+            $this->_fechaIniVenta = $fechaIniVenta;
+        } else {
+            $this->_fechaIniVenta = '01/01/' . $this->_anio;
+        }
+    }
+
+    // FECHA FIN DE VENTA
+    public function getFechaFinVenta(): string|DateTime {
+        return $this->_fechaFinVenta;
+    }
+
+    public function setFechaFinVenta(string|DateTime $fechaFinVenta): bool {
+        if ($fechaFinVenta instanceof DateTime) {
+            $fecha = $fechaFinVenta;
+        } else {
+            $fecha = DateTime::createFromFormat('d/m/Y', $fechaFinVenta);   //crea una fecha a partir de un formato
+
+            if ($fecha->format('d/m/Y') != $fechaFinVenta) {    //->format() convierte la fecha a cadena
+                return false;
+            }
+        }
+
+        $fechaInicio = DateTime::createFromFormat('d/m/Y', $this->_fechaIniVenta);  //iguala la fecha de inicio a la fecha de fin de venta, no sin antes convertirlo a una fecha
+
+        if ($fecha < $fechaInicio) {
+            return false;
+        }
+
+        $this->_fechaFinVenta = $fechaFinVenta;
+        return true;
+    }
+
+    // PRECIO
+    public function getPrecio(): float {
+        return $this->_precio;
+    }
+
+    public function setPrecio(float $precio): bool {
+        if ($precio < 30) {
+            return false;
+        }
+
+        $this->_precio = $precio;
+        return true;
+    }
+
 
     //Deshabilitar la sobrecarga dinámica en la clase
     public function __get(string $nombre): mixed {
